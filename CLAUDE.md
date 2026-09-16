@@ -28,9 +28,10 @@ Single-developer project. Optimise for clarity and shipping speed over generalit
 
 Before starting work on an issue: `git fetch`, checkout `main`, `git pull`, then
 branch off `main` using the story ID as the branch name (e.g. `PT-002`) so the
-branch is linked to the GitHub issue. All work for that issue is committed to
-that branch. Do not open a PR — leave the branch for manual review, and I'll
-create the PR myself.
+branch is linked to the GitHub issue. Push the new branch to the remote before
+doing any work on it. All work for that issue is committed to that branch. Do
+not open a PR — leave the branch for manual review, and I'll create the PR
+myself.
 
 ## Product scope
 

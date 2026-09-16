@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Self-hosted portfolio tracker with a pluggable market-analysis layer"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+]
 
 [dependency-groups]
 dev = [

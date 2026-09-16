@@ -21,7 +21,10 @@ cd portfolio-tracker
 # 3. create the venv and install everything, including dev tools
 uv sync
 
-# 4. run the checks
+# 4. configure — every key is documented in the example, secrets stay out of git
+cp .env.example .env
+
+# 5. run the checks
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy
