@@ -63,3 +63,21 @@ def test_interfaces_hold_no_implementation_imports() -> None:
             if m.startswith(("portfolio.features", "portfolio.core", "portfolio.api"))
         }
         assert not offenders, f"{path} must stay implementation-free: {sorted(offenders)}"
+
+
+def test_environment_is_read_only_by_settings() -> None:
+    """Config travels through `Settings`/`AppContext`; `os.environ` reads are banned in src/."""
+    banned = {"environ", "getenv", "putenv", "unsetenv"}
+    for path in sorted(SRC.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Attribute)
+                and node.attr in banned
+                and isinstance(node.value, ast.Name)
+                and node.value.id == "os"
+            ):
+                raise AssertionError(f"{path}:{node.lineno} reads os.{node.attr} directly")
+            if isinstance(node, ast.ImportFrom) and node.module == "os":
+                offenders = {alias.name for alias in node.names} & banned
+                assert not offenders, f"{path}:{node.lineno} imports {sorted(offenders)} from os"
