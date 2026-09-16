@@ -5,8 +5,11 @@ description = "Self-hosted portfolio tracker with a pluggable market-analysis la
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.13",
+    "asyncpg>=0.30",
     "pydantic>=2.9",
     "pydantic-settings>=2.5",
+    "sqlalchemy[asyncio]>=2.0",
 ]
 
 [dependency-groups]
@@ -50,6 +53,10 @@ select = [
 ignore = [
     "S101",  # assert is fine, pytest depends on it
 ]
+
+[tool.ruff.lint.isort]
+# alembic.ini at the repo root makes ruff guess "alembic" is first-party.
+known-third-party = ["alembic"]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"

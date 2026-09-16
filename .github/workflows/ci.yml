@@ -12,6 +12,23 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio
+          POSTGRES_DB: portfolio_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d portfolio_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # Database-backed tests skip without this; CI must never silently skip them.
+      TEST_DATABASE_URL: postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio_test
     steps:
       - uses: actions/checkout@v4
 
@@ -37,4 +54,11 @@ jobs:
         run: uv run mypy
 
       - name: Tests
-        run: uv run pytest
+        run: uv run pytest -rs
+
+      - name: Migrations apply and revert against Postgres
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
