@@ -24,6 +24,14 @@ Single-developer project. Optimise for clarity and shipping speed over generalit
 - **Deploy:** API and scheduler on Fly.io or Railway; frontend on Vercel.
   Vercel cannot host the scheduled worker — do not propose putting it there.
 
+## Branching strategy
+
+Before starting work on an issue: `git fetch`, checkout `main`, `git pull`, then
+branch off `main` using the story ID as the branch name (e.g. `PT-002`) so the
+branch is linked to the GitHub issue. All work for that issue is committed to
+that branch. Do not open a PR — leave the branch for manual review, and I'll
+create the PR myself.
+
 ## Product scope
 
 ### v1 — the Sharesight core
