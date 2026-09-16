@@ -24,7 +24,13 @@ uv sync
 # 4. configure — every key is documented in the example, secrets stay out of git
 cp .env.example .env
 
-# 5. run the checks
+# 5. start a local Postgres (dev database `portfolio`, test database `portfolio_test`)
+docker compose up -d
+
+# 6. apply migrations
+uv run alembic upgrade head
+
+# 7. run the checks
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy
@@ -32,6 +38,37 @@ uv run pytest
 ```
 
 `uv run <cmd>` executes inside the project venv, so activating it is optional.
+
+The local Postgres URL is `postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio`;
+put that in `.env` as `DATABASE_URL` to develop against it instead of Supabase.
+
+## Database
+
+SQLAlchemy 2.0 async over asyncpg, with Alembic for migrations. `src/portfolio/core/db.py`
+holds the declarative `Base` (naming convention for constraints, `Decimal` → `NUMERIC`,
+`datetime` → `TIMESTAMPTZ`) and the `Money` / `Quantity` column annotations every
+model should use for amounts and unit counts.
+
+Every schema change ships with a migration in the same commit:
+
+```sh
+uv run alembic revision --autogenerate -m "add instruments table"
+uv run alembic upgrade head
+uv run alembic downgrade -1
+```
+
+`migrations/env.py` reads `DATABASE_URL` from the application settings; `alembic.ini`
+holds no URL. New revision files are run through ruff automatically.
+
+### Database-backed tests
+
+Tests that need Postgres take the `db_session` fixture (a session inside a transaction
+that is rolled back after each test) and read `TEST_DATABASE_URL`. Without it they
+skip; CI always sets it. Locally, with the compose stack running:
+
+```sh
+TEST_DATABASE_URL=postgresql+asyncpg://portfolio:portfolio@localhost:5432/portfolio_test uv run pytest
+```
 
 ## Layout
 
