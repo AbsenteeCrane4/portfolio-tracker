@@ -24,14 +24,52 @@ Single-developer project. Optimise for clarity and shipping speed over generalit
 - **Deploy:** API and scheduler on Fly.io or Railway; frontend on Vercel.
   Vercel cannot host the scheduled worker — do not propose putting it there.
 
-## Branching strategy
+## UI source of truth
 
-Before starting work on an issue: `git fetch`, checkout `main`, `git pull`, then
-branch off `main` using the story ID as the branch name (e.g. `PT-002`) so the
-branch is linked to the GitHub issue. Push the new branch to the remote before
-doing any work on it. All work for that issue is committed to that branch. Do
-not open a PR — leave the branch for manual review, and I'll create the PR
-myself.
+The wireframe at `docs/design/Portfolio Tracker UI.html` is the single source of
+truth for the UI and all frontend work. Open it before starting any frontend
+issue. Layout, screens, navigation, component structure, and information
+hierarchy follow the wireframe.
+
+- If the wireframe and an issue disagree, stop and ask — don't pick one silently.
+- If the wireframe and this file disagree on behaviour (e.g. it shows a bare
+  percentage), the hard rules below win; flag the discrepancy rather than
+  copying it.
+- Don't invent screens, controls, or flows the wireframe doesn't show. If
+  something is missing, ask; the wireframe gets updated first, then the code.
+- The wireframe is a layout reference, not a styling spec or a data contract.
+  Figures come from the API, never hard-coded from wireframe sample data.
+- Frontend scope is still limited to what a GitHub issue covers (see
+  "Working with me").
+
+## Issue workflow
+
+Work through the open GitHub issues one at a time, from the lowest issue number
+to the highest. Do not skip ahead, work on two issues at once, or start work not
+covered by an issue. Repeat this loop for each issue:
+
+1. **Read the ticket** (`gh issue view <n>`), including its acceptance criteria.
+2. **Sync and branch:** `git fetch`, checkout `main`, `git pull`, then create the
+   branch off `main` named after the story ID (e.g. `PT-002`) and linked to the
+   issue, e.g. `gh issue develop <n> --name PT-002 --base main --checkout`, so it
+   shows under the issue's Development section on GitHub.
+3. **Publish the branch** (`git push -u origin <branch>`) before doing any work
+   on it, so it exists both locally and on the remote.
+4. **Implement,** committing regularly: small commits, one concern each, pushed
+   as you go. Run `ruff check`, `ruff format --check`, and `pytest` before each
+   commit that proposes a finished piece of work.
+5. **Open a PR** into `main` once the acceptance criteria are met. Reference the
+   issue (`Closes #<n>`) in the description.
+6. **Merge** only after the PR checks have passed and the PR is approved. If
+   checks fail, fix them on the branch; never bypass or disable checks, and never
+   force-merge.
+7. **Prune:** after the merge, checkout `main`, `git pull`, delete the branch
+   locally and on the remote, and run `git fetch --prune`. Only delete branches
+   that are fully merged into `main`; never delete an unmerged branch.
+8. **Move on** to the next-lowest open issue and repeat from step 1.
+
+Stop and ask if an issue is ambiguous, blocked, depends on a later issue, or
+would require breaking a rule in this file.
 
 ## Product scope
 
