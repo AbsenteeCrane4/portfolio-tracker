@@ -74,7 +74,7 @@ class Settings(BaseSettings):
 
     # --- providers ----------------------------------------------------------------
     # A provider with no API key is simply not wired. Daily quota defaults follow
-    # the free-tier table in CLAUDE.md; verify against the provider before relying
+    # the free-tier table in docs/market-data.md; verify against the provider before relying
     # on them.
     twelvedata_api_key: SecretStr | None = None
     twelvedata_daily_quota: int = Field(default=800, gt=0)

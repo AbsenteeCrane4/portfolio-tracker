@@ -3,8 +3,9 @@
 Self-hosted portfolio tracker modelled on Sharesight, extended with a pluggable
 market-analysis layer. Single-user, UK tax rules, free-tier price data.
 
-See [CLAUDE.md](CLAUDE.md) for the architecture and the rules this codebase enforces,
-and [USER_STORIES.md](USER_STORIES.md) for the backlog.
+See [CLAUDE.md](CLAUDE.md) for the rules this codebase enforces,
+[docs/architecture.md](docs/architecture.md) for the architecture,
+[docs/product.md](docs/product.md) for scope, and the GitHub issues for the backlog.
 
 ## Local setup
 
