@@ -11,35 +11,18 @@ paths:
   - "tests/**/*quota*"
 ---
 
-# Market data rules
+# Market data guardrails
 
-Background and the provider snapshot are in `docs/market-data.md`. The rules:
+Load the `market-data` skill before changing anything in this area. It holds
+the pipeline, failure handling, and the test list. These are the lines you
+must never cross:
 
-- **Spend quota deliberately.** Each outbound call goes through the shared
-  client and is recorded in the quota ledger. When the budget is exhausted,
-  stop cleanly and leave the remaining work for the next window. Retries are
-  bounded and still count against the budget, so they can never become a
-  retry storm.
-- **Ask only for gaps.** Check the `prices` / `fx_rates` cache first, and
-  never re-fetch what is already stored. Batch symbols into the fewest
-  requests the provider allows. There is one job per provider, not one per
-  holding.
-- **Keep daily polling and backfill apart.** Backfill is a separate, resumable
-  job on a lower-priority quota allocation, and it must never starve the daily
-  poll.
-- **Failures leave gaps.** Never write a null, zero, or carried-forward value
-  in place of a missing one.
-- **Responses are validated.** Every provider response is parsed into a
-  Pydantic model, with prices going straight to `Decimal`. A response that
-  fails validation counts as a failed fetch. It is never patched up.
-- **Provider code stays behind the interface.** Provider-specific behaviour
-  stays inside its feature package, and core sees only the Protocol. Quota
-  figures come from `Settings`, never from constants in provider code.
-- **Source selection is deterministic.** When several sources cover the same
-  `(instrument, date)`, valuation picks one by configured precedence, never by
-  arrival order. Rebuild equivalence depends on this.
-- **No Yahoo Finance unofficial endpoints**, and no websockets or live-tick
-  designs. Scraping is a last resort, behind the provider interface and in an
-  isolated subprocess.
-- **Tests replay recorded fixtures**, with credentials and account identifiers
-  scrubbed. Never call a live endpoint from a test.
+- No outbound call without a successful quota `reserve()` and the shared
+  client from `AppContext`. Retries are bounded and each one reserves quota.
+- Never write a null, zero, or carried-forward value into `prices` or
+  `fx_rates`. Gaps stay gaps.
+- Don't call `response.json()` on provider bodies, because it parses numbers
+  as float. See the skill for safe Decimal parsing.
+- No Yahoo Finance unofficial endpoints, and no websocket or live-tick
+  designs.
+- Tests replay scrubbed, recorded fixtures. They never hit the network.

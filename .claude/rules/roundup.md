@@ -11,27 +11,39 @@ paths:
 
 # Roundup and LLM rules
 
-## LLMs and numbers
+Signal maths (definitions, observation counts, insufficient-data handling)
+is covered by the `quant` skill.
 
-- Every signal, figure, and statistic is computed by deterministic Python
-  before any model is called.
-- The model receives that computed table plus text (news, context). It
-  returns structured output, such as narrative, ranking, or categorisation,
-  validated against a Pydantic schema.
-- The model never calculates, estimates, converts, or rounds a figure, and
-  never originates one. A figure that appears in user-visible output comes
-  from the computed inputs, not from the model's text.
-- Output that fails validation is discarded and the failure logged. It is
-  never repaired by regex or coercion.
-- LLM API calls are external calls. They go through the shared client and the
-  quota ledger.
+## LLMs and numbers (PT-044)
 
-## Suggestions
+- Every signal and figure is computed by deterministic Python before a model
+  is called. Each signal returns its value, window, and observation count
+  (PT-043).
+- The model receives the computed signal table plus headlines, never a
+  request to calculate. It returns ranked observations validated against a
+  Pydantic schema, each referencing the signal id and article ids it relies
+  on.
+- The model never calculates, estimates, converts, rounds, or originates a
+  figure. Numbers shown come from the referenced signals, not from the
+  model's text.
+- An observation referencing a signal or article id that wasn't in the input
+  is rejected.
+- Output that fails validation is discarded and retried once. If the retry
+  also fails, the roundup falls back to presenting the raw signals. Never
+  repair output by regex or coercion.
+- LLM API calls are external calls, so they go through the shared client and
+  the quota ledger. The model provider is configurable, and the whole feature
+  can be disabled.
 
-- Persist each suggestion with its full inputs: the signal snapshot, the news
-  items used, the raw validated model output, and its state
-  (`new` / `accepted` / `dismissed`). Never discard the inputs. They are the
-  dataset for evaluating decision quality later.
-- Copy describes signals and observations, such as "X fell 8% on volume 3x
-  its 20-day average". It never instructs ("sell X"). This is not an advice
-  product, and nothing here places orders.
+## Suggestions (PT-045)
+
+- Each suggestion row stores the signal snapshot, the prompt, the model name,
+  the validated output, its created timestamp, and its state. Never discard
+  the inputs: they are the dataset for evaluating decisions later.
+- States are `new`, `accepted`, `dismissed`, and `stale` (superseded). Each
+  transition is recorded with a timestamp and an optional note. Rows are
+  never deleted.
+- Accepting a suggestion records intent only. It never creates a transaction
+  or places a trade.
+- Copy describes signals and observations ("X fell 8% on 3× its 20-day average
+  volume"). It never instructs ("sell X").

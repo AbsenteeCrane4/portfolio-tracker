@@ -7,8 +7,9 @@ dependency injection at startup. They are not entry-point plugins yet.
 The seams are shaped so that a later move to `importlib.metadata` entry points
 is mechanical. Don't build a plugin registry, entry-point loading, or dynamic
 discovery until two real implementations of the same interface are competing.
-The second price provider (PT-017) is the first likely trigger, and even then
-explicit wiring may well be enough.
+PT-017 (the second price provider and fallback ordering) is the named trigger
+for revisiting this decision. When it lands, raise the question rather than
+deciding silently either way.
 
 ## Layout
 

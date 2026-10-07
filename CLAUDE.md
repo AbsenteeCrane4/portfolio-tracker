@@ -19,12 +19,24 @@ product and not an execution platform: nothing in this codebase places orders.
 | Backlog, scope of the current task, acceptance criteria | GitHub issues (authoritative; `USER_STORIES.md` cited in issue footers is not in the repo) |
 | v1/v2 product scope, out-of-scope list | [docs/product.md](docs/product.md) |
 | Package layout, core vs feature, `AppContext`, valuation design | [docs/architecture.md](docs/architecture.md) |
-| Provider landscape and polling design | [docs/market-data.md](docs/market-data.md) |
+| Provider free tiers (volatile snapshot) | [docs/market-data.md](docs/market-data.md) |
 | UI layout | `docs/design/Portfolio Tracker UI.html` |
 | Local setup, migrations, DB-backed tests | [README.md](README.md) |
 
 Area-specific rules in `.claude/rules/` load automatically when you work on
 matching files: frontend, market data, tax, roundup/LLM, and tests.
+
+Domain skills in `.claude/skills/` hold the specialist procedures and worked
+examples. Use them for financial work:
+
+- `portfolio-accounting`: ledger, positions, cost basis, corporate actions,
+  cash, FX on transactions;
+- `quant`: returns, IRR, attribution, benchmarks, signals;
+- `uk-tax`: HMRC matching, tax years, income classification, CGT and income
+  reports;
+- `market-data`: providers, quota, cache, backfill, staleness;
+- `financial-correctness-review`: run before calling any financial change
+  done.
 
 ## Stack
 
@@ -88,7 +100,8 @@ asked for it, and propose an alternative. Never weaken one "for now".
     disables itself.
 11. **Suggestions are persisted with their inputs.** Each one stores the
     signal snapshot, the model output, and its state (`new` / `accepted` /
-    `dismissed`). Copy describes signals and observations. It never instructs.
+    `dismissed`, plus `stale` when superseded, per PT-045). Rows are never
+    deleted. Copy describes signals and observations. It never instructs.
 
 ## Architecture boundaries
 
